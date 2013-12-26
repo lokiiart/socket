@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <errno.h>
+#include "io.h"
 
 //主要参考资料http://pubs.opengroup.org
 #define MAXLINE 4096 /*max text line length*/
@@ -14,11 +15,11 @@
 #define LISTENQ 8 /*maximum number of client connections */
 
 
-void error(char *msg)
-{
-		fprintf(stderr,"%s: %s\n", msg, strerror(errno));
-		exit(1);
-}
+//void error(char *msg)
+//{
+//		fprintf(stderr,"%s: %s\n", msg, strerror(errno));
+//		exit(1);
+//}
 
 int open_listener_socket(){
 		int s = socket (AF_INET, SOCK_STREAM, 0);
@@ -41,14 +42,14 @@ void bind_to_port(int socket, int port)
 		error("不能绑定端口");
 }
 
-int say(int socket ,char *s)
-{
-		int result = send(socket, s, strlen(s), 0);
-		//出措时没有调用error(),因为error()会关闭服务端。
-		if(result == -1)
-				fprintf(stderr, "%s: %s\n", "和客户端通信时发生了错误",strerror(errno));
-		return result;
-}
+//int say(int socket ,char *s)
+//{
+//		int result = send(socket, s, strlen(s), 0);
+//		//出措时没有调用error(),因为error()会关闭服务端。
+//		if(result == -1)
+//				fprintf(stderr, "%s: %s\n", "通信时发生了错误",strerror(errno));
+//		return result;
+//}
 
 int catch_singal(int sig, void (*handler)(int))
 {
