@@ -134,6 +134,7 @@ int main (int argc, char **argv)
 				//send(connfd, "Send OK!\n", 15, 0);
 				puts(buf);
 				say(connfd,"Send OK!\n");
+				say(connfd,buf);
 				}
 			
 				if (n < 0) {

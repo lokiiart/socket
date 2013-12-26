@@ -6,7 +6,9 @@
 #include <arpa/inet.h>
 #include <unistd.h>
 #include <netdb.h>
+#include <pthread.h>
 #include "io.h"
+int d_sock;
 
 //void error(char *msg)
 //{
@@ -42,19 +44,18 @@ int open_socket(char *host, char *port)
 //
 //}
 
-int main(int argc, char *argv[])
-{
-		int d_sock;
-
-		d_sock = open_socket("localhost","5272");
-		char buf[255];
+void* do_std_in(void *a){
 		char message[255];
+		while(fgets(message,sizeof(message),stdin)){
+				say(d_sock,message);
+		}
+		return NULL;
 
-		//sprintf(buf, "GET / http:/1.1\r\n");
-		//say(d_sock,buf);
-		//say(d_sock, "Host: localhost\r\n\r\n");
-		fgets(message, sizeof(message),stdin);
-		say(d_sock,message);
+}
+
+void* do_std_out(void *a)
+{
+		
 		char rec[256];
 		int bytesRcvd = recv(d_sock, rec, 255, 0 );
 		while(bytesRcvd){
@@ -64,6 +65,31 @@ int main(int argc, char *argv[])
 				printf("%s", rec);
 				bytesRcvd = recv(d_sock, rec, 255, 0);
 		}
+
+		return NULL;
+
+}
+
+int main(int argc, char *argv[])
+{
+
+		d_sock = open_socket("localhost","5272");
+		pthread_t t0;
+		pthread_t t1;
+		if(pthread_create(&t0, NULL, do_std_in, NULL) == -1)
+				error("无法创建线程t1");
+		if(pthread_create(&t1, NULL, do_std_out,  NULL) == -1)
+				error("无法创建线程t2");
+
+		void * result;
+		if(pthread_join(t0, &result) == -1)
+				error("Can't gather t1");
+		if(pthread_join(t1, &result) == -1)
+				error("Can't gather t2");
+
+		//sprintf(buf, "GET / http:/1.1\r\n");
+		//say(d_sock,buf);
+		//say(d_sock, "Host: localhost\r\n\r\n");
 		close(d_sock);
 		return 0;
 }
