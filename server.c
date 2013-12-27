@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <signal.h>
 #include <errno.h>
+#include <pthread.h>
 #include "io.h"
 
 //主要参考资料http://pubs.opengroup.org
@@ -70,6 +71,31 @@ void handle_shutdown(int sig)
 		exit(0);
 }
 
+void* do_std_in(void *a){
+		char message[255];
+		while(fgets(message,sizeof(message),stdin)){
+				say(d_sock,message);
+		}
+		return NULL;
+
+}
+
+void* do_std_out(void *a)
+{
+		
+		char rec[256];
+		int bytesRcvd = recv(d_sock, rec, 255, 0 );
+		while(bytesRcvd){
+				if(bytesRcvd == -1)
+						error("Can't read from server");
+				rec[bytesRcvd] = '\0';
+				printf("%s", rec);
+				bytesRcvd = recv(d_sock, rec, 255, 0);
+		}
+
+		return NULL;
+
+}
 
 int main (int argc, char **argv)
 {
@@ -126,15 +152,15 @@ int main (int argc, char **argv)
 		if(!fork()){
 				close(listenfd);
 
+				//To-do 在子进程中通信，向所有客户端发送所有说到的数据，向每个客户端发送相关的ip地址和socket信息，2.服务端可接收信息，并向客户端发送。3.可像单个客户端发送。
 				//blab第四步，accept，也就是开始通信了。
 				while ( (n = recv(connfd, buf, MAXLINE,0)) > 0)  {
-				//printf("%s","String received from and resent to the client:");
-				//printf("%s",buf);
-				//puts(buf);
-				//send(connfd, "Send OK!\n", 15, 0);
-				puts(buf);
-				say(connfd,"Send OK!\n");
-				say(connfd,buf);
+					//printf("%s","String received from and resent to the client:");
+					//printf("%s",buf); //puts(buf);
+					//send(connfd, "Send OK!\n", 15, 0);
+					puts(buf);
+					say(connfd,"Send OK!\n");
+					say(connfd,buf);
 				}
 			
 				if (n < 0) {
