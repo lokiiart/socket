@@ -153,7 +153,7 @@ int main (int argc, char **argv)
 				close(listenfd);
 
 				//To-do 在子进程中通信，向所有客户端发送所有说到的数据，向每个客户端发送相关的ip地址和socket信息，2.服务端可接收信息，并向客户端发送。3.可像单个客户端发送。
-				//blab第四步，accept，也就是开始通信了。
+				//blab第四步，begin，也就是开始通信了。
 				while ( (n = recv(connfd, buf, MAXLINE,0)) > 0)  {
 					//printf("%s","String received from and resent to the client:");
 					//printf("%s",buf); //puts(buf);
